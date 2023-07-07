@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Aug  2 19:01:02 2019
-
-@author: turkf
-"""
 
 from datetime import datetime
 import pandas as pd
@@ -61,9 +55,11 @@ class Member:
     def showbook(self):
         """Returns the students books as a dataframe"""
         
-        isim_es = np.logical_and(librarylog["Name"] == self.name, librarylog['Lastname'] == self.lastname)
+        #Matching the name and the lastname and getting the boolean pandas array
+        name_matching = np.logical_and(librarylog["Name"] == self.name, librarylog['Lastname'] == self.lastname)
 
-        kg1 = librarylog.loc[np.logical_and(isim_es, librarylog['Return'] == 0), ['Date', 'Hour', 'Booknumber', 'Bookname'] ]
+        kg1 = librarylog.loc[np.logical_and(name_matching, librarylog['Return'] == 0),
+                              ['Date', 'Hour', 'Booknumber', 'Bookname'] ]
         
         return kg1
 
@@ -71,12 +67,13 @@ class Member:
     def returnbook(self, bookno):
         """Used for returning a student's unreturned book"""
         
+        #Serially matching the bookno, name, lastname and return = 0
         a = librarylog['Booknumber'] == bookno
         b = np.logical_and(a, librarylog['Name'] == self.name)
         c = np.logical_and(b, librarylog['Return'] == 0)
         d = np.logical_and(c, librarylog['Lastname'] == self.lastname)
         
-        librarylog.loc[c, 'Return'] = 1
+        librarylog.loc[d, 'Return'] = 1
         
         librarylog.to_csv("Library_log.csv")
         
