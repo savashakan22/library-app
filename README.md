@@ -41,7 +41,7 @@ This Python-based School Library Management System allows for easy management of
 
 - `Library_GUI.py`: Main script containing the Tkinter GUI and user interactions.
 - `Library_Class.py`: Module defining the LibraryManager class for book management.
-- `library_log.csv`: CSV file storing the book transaction log.
+- `library_log.csv`: CSV file storing the book transaction log. (Will be created automatically if non-existent)
 
 ## Requirements
 
