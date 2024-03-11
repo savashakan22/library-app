@@ -1,71 +1,61 @@
-
 from datetime import datetime
 import pandas as pd
 from os.path import isfile
 import numpy as np
 
-library_log = pd.DataFrame(columns= ['Date', 'Hour', 'Name', 'Lastname', 'Booknumber', 'Bookname', 'Return'])
-
-if isfile('Library_log.csv'):
-    library_log = pd.read_csv('Library_log.csv')
-
-else:
-    library_log.to_csv('Library_log.csv')
-    
-
-class Member:
+class Library:
     """Used for adding students to the log and managing their books. 
-        Method:     Member.__init__(name, lastname)     -> Lets you do change on a register with the matching name
-                    Member.addbook(bookno, bookname)    -> Adds book on a student register
-                    Member.returnbook(bookno, bookname) -> Changes the book to Return = 1 on the given register
-                    Member.showbooks()                  -> Shows the books on the register with the "Return = 0"
+        Method:     Member.__init__()                                   -> Initializes the library DataFrame
+                    Member.addbook(name, lastname, bookno, bookname)    -> Adds book on a student register
+                    Member.returnbook(name, lastname, bookno, bookname) -> Changes the book to Return = 1 on the given register
+                    Member.showbooks(name, lastname)                    -> Shows the books on the register with the "Return = 0"
                     """
     
-    
-    def __init__(self, name, lastname):
-        self.name = name
-        self.lastname = lastname
+    def __init__(self, file_name):
+        self.library_log = pd.DataFrame(columns= ['Date', 'Hour', 'Name', 'Lastname', 'Booknumber', 'Bookname', 'Return'])
+        self.file_name = file_name
+
+        if isfile(self.file_name):
+            self.library_log = pd.read_csv(self.file_name)
+
+        else:
+            self.library_log.to_csv(self.file_name, index = False)
+
         
         
-    def addbook(self, bookno, bookname):
+    def add_book(self, name, lastname, bookno, bookname):
         """Adds book to the register's name, also adds the date and the hour"""
         
-        global library_log
         library_append = pd.DataFrame({
                                     'Date':             [str(datetime.now().strftime('%d-%m-%Y'))],
                                     'Hour':             [str(datetime.now().strftime('%H:%M:%S'))],
-                                    'Name':             [self.name],
-                                    'Lastname':         [self.lastname],
+                                    'Name':             [name],
+                                    'Lastname':         [lastname],
                                     'Booknumber':       [bookno],
                                     'Bookname':         [bookname],
                                     'Return':           [0]})
-        library_log = pd.concat([library_log, library_append])
-        library_log.to_csv("Library_log.csv")
+        self.library_log = pd.concat([self.library_log, library_append])
 
 
-    def showbook(self):
+    def show_book(self, name, lastname):
         """Returns the students books as a dataframe"""
         
         #Matching the name and the lastname and getting the boolean pandas array
-        name_matching = np.logical_and(library_log["Name"] == self.name, library_log['Lastname'] == self.lastname)
+        name_matching = np.logical_and(self.library_log["Name"] == name, self.library_log['Lastname'] == lastname)
+        name_matching = np.logical_and(name_matching, self.library_log['Return'] == 0)
 
-        member_books = library_log.loc[np.logical_and(name_matching, library_log['Return'] == 0),
-                              ['Date', 'Hour', 'Booknumber', 'Bookname'] ]
+        member_books = self.library_log.loc[name_matching, ['Date', 'Hour', 'Booknumber', 'Bookname']]
         
-        return member_books
+        return member_books if not member_books.empty else "No books found for the student"
 
 
-    def returnbook(self, bookno):
+    def return_book(self, name, lastname, bookno):
         """Used for returning a student's unreturned book"""
-        
-        #Serially matching the bookno, name, lastname and return = 0
-        a = library_log['Booknumber'] == bookno
-        b = np.logical_and(a, library_log['Name'] == self.name)
-        c = np.logical_and(b, library_log['Return'] == 0)
-        d = np.logical_and(c, library_log['Lastname'] == self.lastname)
-        
-        library_log.loc[d, 'Return'] = 1
 
+        #Serially matching the bookno, name, lastname and return = 0
+        book_matching = np.logical_and(self.library_log['Booknumber'] == bookno , self.library_log['Return'] == 0)
+        name_matching = np.logical_and(self.library_log['Lastname'] == lastname, self.library_log['Name'] == name)
+        full_match = np.logical_and(book_matching, name_matching)
         
-        library_log.to_csv("Library_log.csv")
+        self.library_log.loc[full_match, 'Return'] = 1        
         
