@@ -14,7 +14,7 @@ This Python-based School Library Management System allows for easy management of
 
     ```bash
     git clone https://github.com/savasakan22/library-app.git
-    cd school-library-management
+    cd library-app
     ```
 
 2. Install the required dependencies:
