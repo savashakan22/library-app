@@ -64,7 +64,7 @@ class Member:
         c = np.logical_and(b, library_log['Return'] == 0)
         d = np.logical_and(c, library_log['Lastname'] == self.lastname)
         
-        library=log.loc[d, 'Return'] = 1
+        library_log.loc[d, 'Return'] = 1
 
         
         library_log.to_csv("Library_log.csv")
